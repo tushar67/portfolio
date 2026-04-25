@@ -1,65 +1,637 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
+import FeaturedProjectsCarousel from "./components/FeaturedProjectsCarousel";
+
+export default function Page() {
+  const [projects, setProjects] =
+    useState<any[]>([]);
+  const [blogs, setBlogs] =
+    useState<any[]>([]);
+  const [videoUrl, setVideoUrl] =
+    useState<string | null>(null);
+
+  useEffect(() => {
+    loadData();
+
+    document.documentElement.style.scrollBehavior =
+      "smooth";
+  }, []);
+
+  async function loadData() {
+    const { data: projectData } =
+      await supabase
+        .from("projects")
+        .select("*")
+        .eq("featured", true)
+        .order("id", {
+          ascending: false,
+        });
+
+    const { data: blogData } =
+      await supabase
+        .from("posts")
+        .select("*")
+        .order("id", {
+          ascending: false,
+        })
+        .limit(3);
+
+    setProjects(projectData || []);
+    setBlogs(blogData || []);
+  }
+
+  function getEmbedUrl(
+    url: string
+  ) {
+    if (
+      url.includes(
+        "youtube.com/embed"
+      )
+    )
+      return url;
+
+    if (
+      url.includes(
+        "watch?v="
+      )
+    ) {
+      const id =
+        url
+          .split(
+            "watch?v="
+          )[1]
+          .split("&")[0];
+
+      return `https://www.youtube.com/embed/${id}`;
+    }
+
+    if (
+      url.includes(
+        "youtu.be/"
+      )
+    ) {
+      const id =
+        url.split(
+          "youtu.be/"
+        )[1];
+
+      return `https://www.youtube.com/embed/${id}`;
+    }
+
+    return url;
+  }
+
+  const skills = [
+    ["🐍", "Python"],
+    ["📊", "R"],
+    ["🟨", "JavaScript"],
+    ["🤖", "Machine Learning"],
+    ["🧠", "NLP"],
+    [
+      "⚙️",
+      "Feature Engineering",
+    ],
+    ["⚛️", "React"],
+    ["▲", "Next.js"],
+    ["🐳", "Docker"],
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main style={page}>
+      {/* HERO */}
+      <section style={hero}>
+        <p style={small}>
+          DATA SCIENTIST •
+          AI BUILDER
+        </p>
+
+        <h1 style={heroTitle}>
+          I build AI systems
+          that turn data
+          into decisions
+        </h1>
+
+        <p style={heroText}>
+          Data Scientist
+          focused on ML,
+          NLP, automation
+          and real-world
+          impact.
+        </p>
+
+        <div style={heroBtns}>
+          <a
+            href="/resume.pdf"
+            style={mainBtn}
+          >
+            Download Resume
+          </a>
+
+          <a
+            href="https://github.com/tushar67"
+            target="_blank"
+            style={ghostBtn}
+          >
+            GitHub →
+          </a>
+        </div>
+      </section>
+
+      {/* PREMIUM CAROUSEL */}
+      <FeaturedProjectsCarousel />
+
+      {/* PROJECTS */}
+      <section
+        id="projects"
+        style={section}
+      >
+        <h2 style={heading}>
+          Selected Work
+        </h2>
+
+        <div style={grid}>
+          {projects.map((p) => (
+            <div
+              key={p.id}
+              style={card}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
+              {p.image_url && (
+                <img
+                  src={p.image_url}
+                  style={img}
+                />
+              )}
+
+              <h3
+                style={
+                  cardTitle
+                }
+              >
+                {p.title}
+              </h3>
+
+              <p style={muted}>
+                {
+                  p.description
+                }
+              </p>
+
+              <p style={tech}>
+                {p.tech}
+              </p>
+
+              <div style={row}>
+                {p.github && (
+                  <a
+                    href={
+                      p.github
+                    }
+                    target="_blank"
+                    style={
+                      linkBtn
+                    }
+                  >
+                    View Code →
+                  </a>
+                )}
+
+                {p.demo && (
+                  <button
+                    style={
+                      mainBtnSmall
+                    }
+                    onClick={() =>
+                      setVideoUrl(
+                        p.demo
+                      )
+                    }
+                  >
+                    ▶ Demo
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* SKILLS */}
+      <section
+        id="skills"
+        style={section}
+      >
+        <h2 style={heading}>
+          Skills & Tools
+        </h2>
+
+        <div style={skillGrid}>
+          {skills.map(
+            (s, i) => (
+              <div
+                key={i}
+                style={
+                  skillCard
+                }
+              >
+                <div
+                  style={
+                    icon
+                  }
+                >
+                  {s[0]}
+                </div>
+
+                <span>
+                  {s[1]}
+                </span>
+              </div>
+            )
+          )}
+        </div>
+      </section>
+
+      {/* BLOG */}
+      <section
+        id="blog"
+        style={section}
+      >
+        <h2 style={heading}>
+          Latest Writing
+        </h2>
+
+        <div style={grid}>
+          {blogs.map((b) => (
             <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              key={b.id}
+              href={`/blog/${b.slug}`}
+              style={{
+                textDecoration:
+                  "none",
+                color:
+                  "white",
+              }}
             >
-              Learning
-            </a>{" "}
-            center.
+              <div
+                style={
+                  card
+                }
+              >
+                <h3
+                  style={
+                    cardTitle
+                  }
+                >
+                  {b.title}
+                </h3>
+
+                <p
+                  style={
+                    muted
+                  }
+                >
+                  {b.excerpt}
+                </p>
+
+                <div
+                  style={{
+                    color:
+                      "#19E6D2",
+                    marginTop: 18,
+                  }}
+                >
+                  Read →
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* CONTACT */}
+      <section
+        id="contact"
+        style={section}
+      >
+        <h2 style={heading}>
+          Contact
+        </h2>
+
+        <div
+          style={
+            contactBox
+          }
+        >
+          <p
+            style={
+              contactTitle
+            }
+          >
+            Let’s build
+            something
+            powerful.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+          <p
+            style={muted}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            Open for AI,
+            Data Science,
+            Automation,
+            Research,
+            Startups and
+            Freelance
+            opportunities.
+          </p>
+
+          <div style={row}>
+            <a
+              href="mailto:tusharsinha67@gmail.com"
+              style={
+                mainBtn
+              }
+            >
+              Email
+            </a>
+
+            <a
+              href="https://github.com/tushar67"
+              target="_blank"
+              style={
+                ghostBtn
+              }
+            >
+              GitHub
+            </a>
+
+            <a
+              href="https://linkedin.com"
+              target="_blank"
+              style={
+                ghostBtn
+              }
+            >
+              LinkedIn
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* VIDEO */}
+      {videoUrl && (
+        <div
+          onClick={() =>
+            setVideoUrl(
+              null
+            )
+          }
+          style={overlay}
+        >
+          <div
+            onClick={(e) =>
+              e.stopPropagation()
+            }
+            style={modal}
+          >
+            <button
+              onClick={() =>
+                setVideoUrl(
+                  null
+                )
+              }
+              style={
+                closeBtn
+              }
+            >
+              ✕
+            </button>
+
+            <iframe
+              width="100%"
+              height="100%"
+              src={getEmbedUrl(
+                videoUrl
+              )}
+              allowFullScreen
+              style={{
+                border:
+                  "none",
+              }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
         </div>
-      </main>
-    </div>
+      )}
+    </main>
   );
 }
+
+/* STYLES */
+
+const page = {
+  background:
+    "linear-gradient(135deg,#00232A,#003843,#00181d)",
+  minHeight:
+    "100vh",
+  color: "white",
+  padding:
+    "40px 6%",
+};
+
+const hero = {
+  paddingTop: 120,
+  paddingBottom: 80,
+  maxWidth: 900,
+};
+
+const small = {
+  color:
+    "#19E6D2",
+  letterSpacing: 2,
+};
+
+const heroTitle = {
+  fontSize: 74,
+  lineHeight: 1,
+  marginTop: 20,
+};
+
+const heroText = {
+  fontSize: 22,
+  opacity: 0.75,
+  marginTop: 26,
+};
+
+const heroBtns = {
+  display: "flex",
+  gap: 16,
+  marginTop: 34,
+};
+
+const section = {
+  paddingTop: 70,
+};
+
+const heading = {
+  fontSize: 58,
+  marginBottom: 30,
+};
+
+const grid = {
+  display: "grid",
+  gridTemplateColumns:
+    "repeat(auto-fit,minmax(340px,1fr))",
+  gap: 22,
+};
+
+const card = {
+  background:
+    "rgba(255,255,255,0.05)",
+  borderRadius: 28,
+  padding: 26,
+};
+
+const cardTitle = {
+  fontSize: 30,
+};
+
+const muted = {
+  opacity: 0.75,
+};
+
+const tech = {
+  color:
+    "#19E6D2",
+  marginTop: 12,
+};
+
+const row = {
+  display: "flex",
+  gap: 12,
+  marginTop: 20,
+  flexWrap:
+    "wrap" as const,
+};
+
+const img = {
+  width: "100%",
+  height: 220,
+  objectFit:
+    "cover" as const,
+  borderRadius: 18,
+};
+
+const mainBtn = {
+  padding:
+    "14px 24px",
+  borderRadius:
+    999,
+  background:
+    "#19E6D2",
+  color:
+    "#00232A",
+  textDecoration:
+    "none",
+};
+
+const ghostBtn = {
+  padding:
+    "14px 24px",
+  borderRadius:
+    999,
+  border:
+    "1px solid rgba(255,255,255,0.15)",
+  color:
+    "white",
+  textDecoration:
+    "none",
+};
+
+const mainBtnSmall = {
+  padding:
+    "10px 18px",
+  borderRadius:
+    999,
+  border:
+    "none",
+  background:
+    "#19E6D2",
+};
+
+const linkBtn = {
+  color:
+    "#19E6D2",
+};
+
+const skillGrid = {
+  display: "grid",
+  gridTemplateColumns:
+    "repeat(auto-fit,minmax(180px,1fr))",
+  gap: 18,
+};
+
+const skillCard = {
+  background:
+    "rgba(255,255,255,0.05)",
+  borderRadius: 22,
+  padding: 24,
+  textAlign:
+    "center" as const,
+};
+
+const icon = {
+  fontSize: 32,
+};
+
+const contactBox = {
+  background:
+    "rgba(255,255,255,0.05)",
+  borderRadius: 28,
+  padding: 30,
+};
+
+const contactTitle = {
+  fontSize: 34,
+  fontWeight: 800,
+  marginBottom: 14,
+};
+
+const overlay = {
+  position:
+    "fixed" as const,
+  inset: 0,
+  background:
+    "rgba(0,0,0,0.8)",
+  display: "flex",
+  justifyContent:
+    "center",
+  alignItems:
+    "center",
+};
+
+const modal = {
+  width: "85%",
+  maxWidth: 1100,
+  height: "75%",
+  background:
+    "#000",
+  borderRadius: 24,
+  overflow:
+    "hidden",
+  position:
+    "relative" as const,
+};
+
+const closeBtn = {
+  position:
+    "absolute" as const,
+  top: 14,
+  right: 14,
+  zIndex: 10,
+  width: 40,
+  height: 40,
+  borderRadius:
+    "50%",
+  border:
+    "none",
+};
