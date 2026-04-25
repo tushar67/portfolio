@@ -67,7 +67,9 @@ export default function Projects() {
           {projects.map((p, i) => (
             <div
               key={i}
-              ref={(el) => (cardsRef.current[i] = el)}
+              ref={(el) => {
+  cardsRef.current[i] = el;
+}}
               className="card"
             >
               <h3 style={{ fontSize: 26 }}>{p.title}</h3>
