@@ -5,10 +5,11 @@ import { useEffect, useRef, useState } from "react";
 
 export default function Projects() {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const cardsRef = useRef<any[]>([]);
+
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    gsap.from(cardsRef.current, {
+    gsap.from(cardsRef.current.filter(Boolean), {
       opacity: 0,
       y: 50,
       duration: 1,
@@ -67,9 +68,9 @@ export default function Projects() {
           {projects.map((p, i) => (
             <div
               key={i}
-              ref={(el) => {
-  cardsRef.current[i] = el;
-}}
+              ref={(el: HTMLDivElement | null) => {
+                cardsRef.current[i] = el;
+              }}
               className="card"
             >
               <h3 style={{ fontSize: 26 }}>{p.title}</h3>
@@ -79,9 +80,18 @@ export default function Projects() {
               <p><b>Approach:</b> {p.approach}</p>
               <p><b>Result:</b> {p.result}</p>
 
-              <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
-                <a href={p.github} target="_blank">
-                  <button className="btn btn-outline">GitHub</button>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  marginTop: 18,
+                  flexWrap: "wrap",
+                }}
+              >
+                <a href={p.github} target="_blank" rel="noreferrer">
+                  <button className="btn btn-outline">
+                    GitHub
+                  </button>
                 </a>
 
                 <button
@@ -117,6 +127,7 @@ export default function Projects() {
                 aspectRatio: "16/9",
                 borderRadius: 18,
                 overflow: "hidden",
+                background: "#000",
               }}
             >
               <iframe
