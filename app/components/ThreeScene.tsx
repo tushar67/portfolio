@@ -5,7 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 
 function Shape() {
-  const mesh = useRef<any>();
+  const mesh = useRef<any>(null);
 
   useFrame(({ clock }) => {
     mesh.current.rotation.y = clock.getElapsedTime() * 0.5;
