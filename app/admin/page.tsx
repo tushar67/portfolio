@@ -10,33 +10,44 @@ export default function AdminPage() {
   const [skills, setSkills] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
 
-  /* BLOG EDIT */
+  /* BLOG */
   const [editingId, setEditingId] =
     useState<number | null>(null);
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [content, setContent] = useState("");
+  const [excerpt, setExcerpt] =
+    useState("");
+  const [content, setContent] =
+    useState("");
 
-  /* ADD SKILL */
+  /* SKILLS */
   const [skillName, setSkillName] =
     useState("");
   const [skillIcon, setSkillIcon] =
     useState("");
 
-  /* ADD PROJECT */
+  /* PROJECT */
+  const [pEditId, setPEditId] =
+    useState<number | null>(null);
+
   const [pTitle, setPTitle] = useState("");
   const [pDesc, setPDesc] = useState("");
   const [pTech, setPTech] = useState("");
   const [pGithub, setPGithub] =
     useState("");
   const [pDemo, setPDemo] = useState("");
-  const [pImage, setPImage] = useState("");
+
+  const [pImageFile, setPImageFile] =
+    useState<File | null>(null);
+
+  const [uploadingProject, setUploadingProject] =
+    useState(false);
 
   /* RESUME */
   const [resumeFile, setResumeFile] =
     useState<File | null>(null);
+
   const [uploading, setUploading] =
     useState(false);
 
@@ -48,17 +59,23 @@ export default function AdminPage() {
     const { data: p } = await supabase
       .from("posts")
       .select("*")
-      .order("id", { ascending: false });
+      .order("id", {
+        ascending: false,
+      });
 
     const { data: c } = await supabase
       .from("comments")
       .select("*")
-      .order("id", { ascending: false });
+      .order("id", {
+        ascending: false,
+      });
 
     const { data: s } = await supabase
       .from("subscribers")
       .select("*")
-      .order("id", { ascending: false });
+      .order("id", {
+        ascending: false,
+      });
 
     const { data: sk } =
       await supabase
@@ -110,7 +127,7 @@ export default function AdminPage() {
       .eq("id", editingId);
 
     alert("Updated");
-    resetForm();
+    resetPost();
     loadData();
   }
 
@@ -134,7 +151,7 @@ export default function AdminPage() {
     loadData();
   }
 
-  function resetForm() {
+  function resetPost() {
     setEditingId(null);
     setTitle("");
     setSlug("");
@@ -147,13 +164,15 @@ export default function AdminPage() {
   async function addSkill() {
     if (!skillName) return;
 
-    await supabase.from("skills").insert([
-      {
-        name: skillName,
-        icon: skillIcon,
-        active: true,
-      },
-    ]);
+    await supabase
+      .from("skills")
+      .insert([
+        {
+          name: skillName,
+          icon: skillIcon,
+          active: true,
+        },
+      ]);
 
     setSkillName("");
     setSkillIcon("");
@@ -169,9 +188,54 @@ export default function AdminPage() {
     loadData();
   }
 
-  /* PROJECTS */
+  /* PROJECT IMAGE */
+
+  async function uploadProjectImage() {
+    if (!pImageFile) return "";
+
+    const ext =
+      pImageFile.name
+        .split(".")
+        .pop();
+
+    const fileName = `project-${Date.now()}.${ext}`;
+
+    const { error } =
+      await supabase.storage
+        .from("projects")
+        .upload(fileName, pImageFile, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+    if (error) {
+      alert(error.message);
+      return "";
+    }
+
+    const { data } = supabase.storage
+      .from("projects")
+      .getPublicUrl(fileName);
+
+    return data.publicUrl;
+  }
+
+  function resetProject() {
+    setPEditId(null);
+    setPTitle("");
+    setPDesc("");
+    setPTech("");
+    setPGithub("");
+    setPDemo("");
+    setPImageFile(null);
+  }
 
   async function addProject() {
+    setUploadingProject(true);
+
+    const imageUrl =
+      await uploadProjectImage();
+
     await supabase
       .from("projects")
       .insert([
@@ -181,18 +245,61 @@ export default function AdminPage() {
           tech: pTech,
           github: pGithub,
           demo: pDemo,
-          image_url: pImage,
+          image_url: imageUrl,
           featured: true,
         },
       ]);
 
-    setPTitle("");
-    setPDesc("");
-    setPTech("");
-    setPGithub("");
-    setPDemo("");
-    setPImage("");
+    resetProject();
+    setUploadingProject(false);
+    loadData();
+  }
 
+  function editProject(p: any) {
+    setPEditId(p.id);
+    setPTitle(p.title || "");
+    setPDesc(
+      p.description || ""
+    );
+    setPTech(p.tech || "");
+    setPGithub(
+      p.github || ""
+    );
+    setPDemo(p.demo || "");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+
+  async function updateProject() {
+    setUploadingProject(true);
+
+    let imageUrl =
+      projects.find(
+        (x) => x.id === pEditId
+      )?.image_url || "";
+
+    if (pImageFile) {
+      imageUrl =
+        await uploadProjectImage();
+    }
+
+    await supabase
+      .from("projects")
+      .update({
+        title: pTitle,
+        description: pDesc,
+        tech: pTech,
+        github: pGithub,
+        demo: pDemo,
+        image_url: imageUrl,
+      })
+      .eq("id", pEditId);
+
+    resetProject();
+    setUploadingProject(false);
     loadData();
   }
 
@@ -207,7 +314,7 @@ export default function AdminPage() {
     loadData();
   }
 
-  /* RESUME UPLOAD */
+  /* RESUME */
 
   async function uploadResume() {
     if (!resumeFile) {
@@ -219,11 +326,12 @@ export default function AdminPage() {
 
     const fileName = `resume-${Date.now()}.pdf`;
 
-    const { error } = await supabase.storage
-      .from("resumes")
-      .upload(fileName, resumeFile, {
-        upsert: true,
-      });
+    const { error } =
+      await supabase.storage
+        .from("resumes")
+        .upload(fileName, resumeFile, {
+          upsert: true,
+        });
 
     setUploading(false);
 
@@ -244,7 +352,8 @@ export default function AdminPage() {
         </h1>
 
         <p style={subTitle}>
-          Manage portfolio content easily
+          Manage portfolio
+          content easily
         </p>
 
         {/* STATS */}
@@ -256,7 +365,9 @@ export default function AdminPage() {
 
           <div style={card}>
             <p>Projects</p>
-            <h2>{projects.length}</h2>
+            <h2>
+              {projects.length}
+            </h2>
           </div>
 
           <div style={card}>
@@ -282,13 +393,17 @@ export default function AdminPage() {
               accept=".pdf"
               onChange={(e) =>
                 setResumeFile(
-                  e.target.files?.[0] || null
+                  e.target
+                    .files?.[0] ||
+                    null
                 )
               }
             />
 
             <button
-              onClick={uploadResume}
+              onClick={
+                uploadResume
+              }
               style={saveBtn}
             >
               {uploading
@@ -301,7 +416,9 @@ export default function AdminPage() {
         {/* PROJECT */}
         <section style={section}>
           <h2 style={sectionTitle}>
-            Add Project
+            {pEditId
+              ? "Edit Project"
+              : "Add Project"}
           </h2>
 
           <div style={glass}>
@@ -309,7 +426,9 @@ export default function AdminPage() {
               placeholder="Title"
               value={pTitle}
               onChange={(e) =>
-                setPTitle(e.target.value)
+                setPTitle(
+                  e.target.value
+                )
               }
               style={input}
             />
@@ -318,7 +437,9 @@ export default function AdminPage() {
               placeholder="Description"
               value={pDesc}
               onChange={(e) =>
-                setPDesc(e.target.value)
+                setPDesc(
+                  e.target.value
+                )
               }
               style={input}
             />
@@ -327,7 +448,9 @@ export default function AdminPage() {
               placeholder="Tech Stack"
               value={pTech}
               onChange={(e) =>
-                setPTech(e.target.value)
+                setPTech(
+                  e.target.value
+                )
               }
               style={input}
             />
@@ -344,29 +467,73 @@ export default function AdminPage() {
             />
 
             <input
-              placeholder="Demo Embed Link"
+              placeholder="Demo Link"
               value={pDemo}
               onChange={(e) =>
-                setPDemo(e.target.value)
+                setPDemo(
+                  e.target.value
+                )
               }
               style={input}
             />
 
             <input
-              placeholder="Image URL"
-              value={pImage}
+              type="file"
+              accept="image/*"
               onChange={(e) =>
-                setPImage(e.target.value)
+                setPImageFile(
+                  e.target
+                    .files?.[0] ||
+                    null
+                )
               }
               style={input}
             />
 
-            <button
-              onClick={addProject}
-              style={saveBtn}
-            >
-              Add Project
-            </button>
+            {pEditId ? (
+              <div
+                style={{
+                  display:
+                    "flex",
+                  gap: 10,
+                }}
+              >
+                <button
+                  onClick={
+                    updateProject
+                  }
+                  style={
+                    saveBtn
+                  }
+                >
+                  {uploadingProject
+                    ? "Saving..."
+                    : "Update"}
+                </button>
+
+                <button
+                  onClick={
+                    resetProject
+                  }
+                  style={
+                    danger
+                  }
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={
+                  addProject
+                }
+                style={saveBtn}
+              >
+                {uploadingProject
+                  ? "Uploading..."
+                  : "Add Project"}
+              </button>
+            )}
           </div>
 
           <div style={list}>
@@ -375,18 +542,61 @@ export default function AdminPage() {
                 key={p.id}
                 style={row}
               >
-                <h3>{p.title}</h3>
+                <div>
+                  {p.image_url && (
+                    <img
+                      src={
+                        p.image_url
+                      }
+                      style={{
+                        width: 140,
+                        height: 90,
+                        objectFit:
+                          "cover",
+                        borderRadius: 12,
+                        marginBottom: 10,
+                      }}
+                    />
+                  )}
 
-                <button
-                  style={danger}
-                  onClick={() =>
-                    deleteProject(
-                      p.id
-                    )
-                  }
+                  <h3>
+                    {p.title}
+                  </h3>
+                </div>
+
+                <div
+                  style={{
+                    display:
+                      "flex",
+                    gap: 10,
+                  }}
                 >
-                  Delete
-                </button>
+                  <button
+                    style={
+                      editBtn
+                    }
+                    onClick={() =>
+                      editProject(
+                        p
+                      )
+                    }
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    style={
+                      danger
+                    }
+                    onClick={() =>
+                      deleteProject(
+                        p.id
+                      )
+                    }
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -411,7 +621,7 @@ export default function AdminPage() {
             />
 
             <input
-              placeholder="Icon 🐍"
+              placeholder="Icon"
               value={skillIcon}
               onChange={(e) =>
                 setSkillIcon(
@@ -436,7 +646,8 @@ export default function AdminPage() {
                 style={row}
               >
                 <h3>
-                  {s.icon} {s.name}
+                  {s.icon}{" "}
+                  {s.name}
                 </h3>
 
                 <button
@@ -468,19 +679,28 @@ export default function AdminPage() {
               >
                 <div>
                   <h3>
-                    {post.title}
+                    {
+                      post.title
+                    }
                   </h3>
-                  <p>{post.slug}</p>
+                  <p>
+                    {
+                      post.slug
+                    }
+                  </p>
                 </div>
 
                 <div
                   style={{
-                    display: "flex",
+                    display:
+                      "flex",
                     gap: 10,
                   }}
                 >
                   <button
-                    style={editBtn}
+                    style={
+                      editBtn
+                    }
                     onClick={() =>
                       editPost(
                         post
@@ -491,7 +711,9 @@ export default function AdminPage() {
                   </button>
 
                   <button
-                    style={danger}
+                    style={
+                      danger
+                    }
                     onClick={() =>
                       deletePost(
                         post.id
@@ -519,9 +741,13 @@ export default function AdminPage() {
                 style={row}
               >
                 <div>
-                  <h3>{c.name}</h3>
+                  <h3>
+                    {c.name}
+                  </h3>
                   <p>
-                    {c.message}
+                    {
+                      c.message
+                    }
                   </p>
                 </div>
 
