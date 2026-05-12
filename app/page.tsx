@@ -435,11 +435,11 @@ const page = {
     "100vh",
   color: "white",
   padding:
-    "40px 6%",
+    "0px 6%",
 };
 
 const hero = {
-  paddingTop: 120,
+  paddingTop: 90,
   paddingBottom: 80,
   maxWidth: 900,
 };

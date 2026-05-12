@@ -14,7 +14,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body style={body}>
-        {/* SMALLER PREMIUM NAVBAR */}
+        {/* NAVBAR */}
         <header style={nav}>
           <a
             href="/"
@@ -56,6 +56,7 @@ export default function RootLayout({
 
         <main>{children}</main>
 
+        {/* FOOTER */}
         <footer style={footer}>
           <h2 style={footTitle}>
             Tushar Sinha
@@ -91,102 +92,135 @@ export default function RootLayout({
   );
 }
 
-/* ---------- Styles ---------- */
+/* ---------- STYLES ---------- */
 
 const body = {
   margin: 0,
+
   fontFamily:
     '-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter",sans-serif',
+
   background:
     "linear-gradient(135deg,#00161a,#00252c,#001015)",
+
   color: "white",
 };
 
-/* SMALLER NAVBAR */
+/* NAVBAR */
+
 const nav = {
   height: 68,
-  width: "88%",
-  margin: "14px auto 0 auto",
-  padding: "0 28px",
+
+  width: "100%",
+
+  padding: "0 6%",
 
   display: "flex",
+
   alignItems: "center",
-  justifyContent: "space-between",
+
+  justifyContent:
+    "space-between",
 
   position: "sticky" as const,
-  top: 14,
+
+  top: 0,
+
   zIndex: 999,
 
-  borderRadius: 18,
+  backdropFilter:
+    "blur(18px)",
 
-  backdropFilter: "blur(18px)",
   WebkitBackdropFilter:
     "blur(18px)",
 
   background:
-    "linear-gradient(135deg, rgba(25,230,210,0.08), rgba(255,255,255,0.03))",
+    "rgba(0,35,42,0.82)",
 
-  border:
+  borderBottom:
     "1px solid rgba(255,255,255,0.08)",
 
-  boxShadow:
-    "0 10px 24px rgba(0,0,0,0.18)",
+  boxSizing:
+    "border-box" as const,
 };
 
 const logo = {
   color: "white",
-  textDecoration: "none",
+
+  textDecoration:
+    "none",
+
   fontSize: 28,
+
   fontWeight: 800,
-  letterSpacing: "-0.5px",
+
+  letterSpacing:
+    "-0.5px",
 };
 
 const menu = {
   display: "flex",
+
   gap: 24,
 };
 
 const link = {
   color:
     "rgba(255,255,255,0.88)",
-  textDecoration: "none",
+
+  textDecoration:
+    "none",
+
   fontWeight: 600,
+
   fontSize: 16,
 };
 
 /* FOOTER */
+
 const footer = {
   marginTop: 120,
+
   padding:
     "70px 8% 50px 8%",
+
   borderTop:
     "1px solid rgba(255,255,255,0.06)",
 };
 
 const footTitle = {
   fontSize: 32,
+
   marginBottom: 8,
 };
 
 const footText = {
   opacity: 0.7,
+
   fontSize: 18,
 };
 
 const socials = {
   display: "flex",
+
   gap: 24,
+
   marginTop: 24,
 };
 
 const footLink = {
   color: "#19E6D2",
-  textDecoration: "none",
+
+  textDecoration:
+    "none",
+
   fontWeight: 600,
 };
 
 const copy = {
   marginTop: 30,
+
   opacity: 0.45,
+
   fontSize: 14,
 };
