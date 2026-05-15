@@ -44,7 +44,7 @@ This portfolio was built to create a strong digital presence, showcase my work, 
 
 ## 🌐 Live Demo
 
-Add your deployed portfolio link here
+https://www.tushardata.me/
 
 ---
 
