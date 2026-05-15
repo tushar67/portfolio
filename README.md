@@ -39,7 +39,7 @@ This portfolio was built to create a strong digital presence, showcase my work, 
 
 - **Name:** Tushar Randhir Sinha  
 - **Email:** tuhsharrandhir.sinha@studenti.unimi.it  
-- **LinkedIn:** Add your LinkedIn link  
+- **LinkedIn:** https://www.linkedin.com/in/tusharrsinha/  
 - **GitHub:** https://github.com/tushar67
 
 ## 🌐 Live Demo
