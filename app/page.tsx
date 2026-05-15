@@ -11,6 +11,8 @@ export default function Page() {
     useState<any[]>([]);
   const [videoUrl, setVideoUrl] =
     useState<string | null>(null);
+    const [hoveredSkill, setHoveredSkill] =
+  useState<number | null>(null);
 
   useEffect(() => {
     loadData();
@@ -217,40 +219,79 @@ export default function Page() {
         </div>
       </section>
 
-      {/* SKILLS */}
-      <section
-        id="skills"
-        style={section}
+     {/* SKILLS */}
+<section
+  id="skills"
+  style={section}
+>
+  <h2 style={heading}>
+    Skills & Tools
+  </h2>
+
+  <div style={skillGrid}>
+    {skills.map((s, i) => (
+      <div
+        key={i}
+        onMouseEnter={() =>
+          setHoveredSkill(i)
+        }
+        onMouseLeave={() =>
+          setHoveredSkill(null)
+        }
+        style={{
+          ...skillCard,
+
+          transform:
+            hoveredSkill === i
+              ? "translateY(-12px) scale(1.05)"
+              : "translateY(0px) scale(1)",
+
+          boxShadow:
+            hoveredSkill === i
+              ? "0 20px 40px rgba(25,230,210,0.25)"
+              : "0 0 0 rgba(0,0,0,0)",
+
+          border:
+            hoveredSkill === i
+              ? "1px solid rgba(25,230,210,0.5)"
+              : "1px solid rgba(255,255,255,0.06)",
+
+          transition:
+            "all 0.35s ease",
+
+          cursor: "pointer",
+        }}
       >
-        <h2 style={heading}>
-          Skills & Tools
-        </h2>
+        <div
+          style={{
+            ...icon,
 
-        <div style={skillGrid}>
-          {skills.map(
-            (s, i) => (
-              <div
-                key={i}
-                style={
-                  skillCard
-                }
-              >
-                <div
-                  style={
-                    icon
-                  }
-                >
-                  {s[0]}
-                </div>
+            transform:
+              hoveredSkill === i
+                ? "scale(1.25) rotate(8deg)"
+                : "scale(1)",
 
-                <span>
-                  {s[1]}
-                </span>
-              </div>
-            )
-          )}
+            transition:
+              "all 0.35s ease",
+          }}
+        >
+          {s[0]}
         </div>
-      </section>
+
+        <span
+          style={{
+            display: "block",
+            marginTop: 12,
+            fontSize: 18,
+            fontWeight: 600,
+          }}
+        >
+          {s[1]}
+        </span>
+      </div>
+    ))}
+  </div>
+</section>
 
       {/* BLOG */}
       <section
