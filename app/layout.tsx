@@ -179,7 +179,7 @@ const link = {
 /* FOOTER */
 
 const footer = {
-  marginTop: 120,
+  marginTop: 0,
 
   padding:
     "70px 8% 50px 8%",

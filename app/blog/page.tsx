@@ -1,12 +1,14 @@
 "use client";
 
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function BlogPage() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] =
     useState(true);
+
   const [search, setSearch] =
     useState("");
 
@@ -60,7 +62,8 @@ export default function BlogPage() {
   return (
     <main style={page}>
       <div style={wrap}>
-        {/* Hero */}
+        {/* HERO */}
+
         <h1 style={title}>
           Blog
         </h1>
@@ -72,7 +75,8 @@ export default function BlogPage() {
           building in public.
         </p>
 
-        {/* Search */}
+        {/* SEARCH */}
+
         <input
           placeholder="Search articles..."
           value={search}
@@ -84,9 +88,10 @@ export default function BlogPage() {
           style={searchBox}
         />
 
-        {/* Featured */}
+        {/* FEATURED POST */}
+
         {filtered[0] && (
-          <a
+          <Link
             href={`/blog/${filtered[0].slug}`}
             style={heroCard}
           >
@@ -111,15 +116,16 @@ export default function BlogPage() {
             <span style={readBtn}>
               Read Now →
             </span>
-          </a>
+          </Link>
         )}
 
-        {/* Grid */}
+        {/* POSTS GRID */}
+
         <div style={grid}>
           {filtered
             .slice(1)
             .map((post) => (
-              <a
+              <Link
                 key={post.id}
                 href={`/blog/${post.slug}`}
                 style={card}
@@ -151,7 +157,7 @@ export default function BlogPage() {
                 >
                   Read →
                 </span>
-              </a>
+              </Link>
             ))}
         </div>
 
@@ -163,8 +169,7 @@ export default function BlogPage() {
               opacity: 0.7,
             }}
           >
-            No articles
-            found.
+            No articles found.
           </p>
         )}
       </div>
@@ -172,112 +177,156 @@ export default function BlogPage() {
   );
 }
 
-/* Styles */
+/* STYLES */
 
 const page = {
   minHeight: "100vh",
+
   padding: "90px 8%",
+
   background:
     "linear-gradient(135deg,#00151a,#002d36,#001219)",
+
   color: "white",
 };
 
 const wrap = {
   maxWidth: 1200,
+
   margin: "0 auto",
 };
 
 const title = {
   fontSize: 82,
+
   fontWeight: 900,
+
   marginBottom: 12,
 };
 
 const subtitle = {
   fontSize: 22,
+
   opacity: 0.75,
+
   maxWidth: 760,
+
   lineHeight: 1.6,
 };
 
 const searchBox = {
   width: "100%",
+
   marginTop: 30,
+
   padding: 18,
+
   borderRadius: 18,
+
   border: "none",
+
   fontSize: 18,
 };
 
 const heroCard = {
   display: "block",
+
   marginTop: 34,
+
   padding: 38,
+
   borderRadius: 30,
+
   textDecoration: "none",
+
   color: "white",
+
   background:
     "linear-gradient(135deg,rgba(25,230,210,0.15),rgba(255,255,255,0.04))",
 };
 
 const tag = {
   color: "#19E6D2",
+
   fontWeight: 800,
+
   letterSpacing: 2,
 };
 
 const heroTitle = {
   fontSize: 46,
+
   fontWeight: 900,
+
   marginTop: 14,
 };
 
 const heroText = {
   marginTop: 14,
+
   fontSize: 20,
+
   opacity: 0.75,
+
   lineHeight: 1.7,
 };
 
 const readBtn = {
   display: "inline-block",
+
   marginTop: 24,
+
   color: "#19E6D2",
+
   fontWeight: 800,
 };
 
 const grid = {
   display: "grid",
+
   gridTemplateColumns:
     "repeat(auto-fit,minmax(320px,1fr))",
+
   gap: 24,
+
   marginTop: 36,
 };
 
 const card = {
   display: "block",
+
   padding: 28,
+
   borderRadius: 26,
+
   background:
     "rgba(255,255,255,0.06)",
+
   color: "white",
+
   textDecoration: "none",
 };
 
 const cardTitle = {
   fontSize: 28,
+
   fontWeight: 800,
 };
 
 const cardText = {
   marginTop: 14,
+
   opacity: 0.72,
+
   lineHeight: 1.7,
 };
 
 const readLink = {
   display: "inline-block",
+
   marginTop: 20,
+
   color: "#19E6D2",
+
   fontWeight: 700,
 };

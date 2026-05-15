@@ -481,7 +481,7 @@ const page = {
 
 const hero = {
   paddingTop: 90,
-  paddingBottom: 80,
+  paddingBottom: 50,
   maxWidth: 900,
 };
 
@@ -510,7 +510,7 @@ const heroBtns = {
 };
 
 const section = {
-  paddingTop: 70,
+  paddingTop: 30,
 };
 
 const heading = {

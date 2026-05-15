@@ -1,15 +1,14 @@
 "use client";
 
 import { supabase } from "@/lib/supabase";
-import { use, useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
-export default function BlogPost({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = use(params);
+export default function BlogPost() {
+  const params = useParams();
+
+  const slug = params.slug as string;
 
   const [post, setPost] = useState<any>(null);
   const [related, setRelated] = useState<any[]>([]);

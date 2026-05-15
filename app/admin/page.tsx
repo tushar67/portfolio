@@ -40,37 +40,100 @@ export default function AdminPage() {
   }, []);
 
   async function loadData() {
-    const { data: p } = await supabase
-      .from("posts")
-      .select("*")
-      .order("id", { ascending: false });
+  const { data: p } = await supabase
+    .from("posts")
+    .select("*")
+    .order("id", {
+      ascending: false,
+    });
 
-    const { data: c } = await supabase
+  const { data: c } =
+    await supabase
       .from("comments")
       .select("*")
-      .order("id", { ascending: false });
+      .order("id", {
+        ascending: false,
+      });
 
-    const { data: s } = await supabase
+  const { data: s } =
+    await supabase
       .from("subscribers")
       .select("*")
-      .order("id", { ascending: false });
+      .order("id", {
+        ascending: false,
+      });
 
-    const { data: sk } = await supabase
+  const { data: sk } =
+    await supabase
       .from("skills")
       .select("*")
-      .order("id", { ascending: false });
+      .order("id", {
+        ascending: false,
+      });
 
-    const { data: pr } = await supabase
+  const { data: pr } =
+    await supabase
       .from("projects")
       .select("*")
-      .order("id", { ascending: false });
+      .order("id", {
+        ascending: false,
+      });
 
-    setPosts(p || []);
-    setComments(c || []);
-    setSubs(s || []);
-    setSkills(sk || []);
-    setProjects(pr || []);
+  setPosts(p || []);
+  setComments(c || []);
+  setSubs(s || []);
+  setSkills(sk || []);
+  setProjects(pr || []);
+}
+
+/* AI BLOG GENERATOR */
+async function generateAI() {
+  try {
+    const res = await fetch(
+      "/api/generate-blog",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          topic: title,
+        }),
+      }
+    );
+
+    const data =
+      await res.json();
+
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+
+    setContent(data.content);
+
+    setExcerpt(
+      data.content
+        .slice(0, 140)
+        .replace(/\n/g, " ") + "..."
+    );
+
+    setSlug(
+      title
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+    );
+  } catch (err) {
+    console.log(err);
+
+    alert(
+      "Failed to generate blog"
+    );
   }
+}
 
   /* BLOG */
 
@@ -441,7 +504,110 @@ export default function AdminPage() {
           </div>
         </section>
 
+            {/* BLOG EDITOR */}
+<section style={section}>
+  <h2 style={sectionTitle}>
+    {editingId
+      ? "Edit Blog"
+      : "Create Blog"}
+  </h2>
+
+  <div style={glass}>
+    <input
+      placeholder="Title"
+      value={title}
+      onChange={(e) =>
+        setTitle(e.target.value)
+      }
+      style={input}
+    />
+
+    <input
+      placeholder="Slug"
+      value={slug}
+      onChange={(e) =>
+        setSlug(e.target.value)
+      }
+      style={input}
+    />
+
+    <input
+      placeholder="Excerpt"
+      value={excerpt}
+      onChange={(e) =>
+        setExcerpt(
+          e.target.value
+        )
+      }
+      style={input}
+    />
+
+    <textarea
+      placeholder="Content"
+      value={content}
+      onChange={(e) =>
+        setContent(
+          e.target.value
+        )
+      }
+      style={{
+        ...input,
+        minHeight: 300,
+      }}
+    />
+
+    <div
+      style={{
+        display: "flex",
+        gap: 12,
+        flexWrap: "wrap",
+      }}
+    >
+      <button
+        onClick={generateAI}
+        style={saveBtn}
+      >
+        Generate with AI
+      </button>
+
+      {editingId ? (
+        <button
+          onClick={updatePost}
+          style={saveBtn}
+        >
+          Update Post
+        </button>
+      ) : (
+        <button
+          onClick={async () => {
+            await supabase
+              .from("posts")
+              .insert([
+                {
+                  title,
+                  slug,
+                  excerpt,
+                  content,
+                },
+              ]);
+
+            resetPost();
+            loadData();
+          }}
+          style={saveBtn}
+        >
+          Publish Post
+        </button>
+      )}
+    </div>
+  </div>
+</section>
+
+
         {/* POSTS */}
+
+        
+        
         <section style={section}>
           <h2 style={sectionTitle}>Posts</h2>
           <div style={list}>
