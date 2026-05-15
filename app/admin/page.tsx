@@ -1,7 +1,9 @@
 "use client";
 
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
 
 export default function AdminPage() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -35,9 +37,19 @@ export default function AdminPage() {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  const router = useRouter();
+
+useEffect(() => {
+  const ok =
+    localStorage.getItem("admin");
+
+  if (!ok) {
+    router.push("/admin-login");
+    return;
+  }
+
+  loadData();
+}, []);
 
   async function loadData() {
   const { data: p } = await supabase
